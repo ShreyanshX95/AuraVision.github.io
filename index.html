@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AuraVision: Project Showcase</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- Inline SVGs for Icons -->
+    <style>
+        /* Base */
+        :root { 
+            color-scheme: dark; 
+        }
+        html { 
+            scroll-behavior: smooth; 
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #030303; /* Slightly off-black */
+            color: #d1d5db;
+            overflow-x: hidden;
+        }
+
+        /* Gradients */
+        .text-gradient-apple {
+            background: linear-gradient(90deg, #60a5fa 0%, #8b5cf6 50%, #fb923c 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .text-gradient-white {
+            background: linear-gradient(90deg, #f3f4f6 0%, #d1d5db 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s ease-out, transform 0.8s ease-out; }
+        .reveal-visible { opacity: 1; transform: translateY(0); }
+        
+        #hero-video { 
+            animation: kenburns 30s ease-in-out infinite alternate; 
+            filter: blur(2px); /* Soften video */
+        }
+        @keyframes kenburns { 0% { transform: scale(1) translate(0,0);} 100% { transform: scale(1.08) translate(-1.5%, 1.5%);} }
+
+        /* Panels */
+        .demo-panel, .feature-card {
+            background: rgba(23,23,23,0.85);
+            border: 1px solid rgba(63,63,70,0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .demo-panel:hover, .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content {
+            background: rgba(20,20,20,0.96);
+            border: 1px solid rgba(63,63,70,0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Thumbnail Selection */
+        .thumb-active {
+            border-color: #60a5fa !important;
+            opacity: 1 !important;
+            transform: scale(1.08);
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+        }
+        .thumb-item {
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            border: 2px solid #4b5563; /* neutral-600 */
+        }
+        .thumb-item:hover { 
+            opacity: 1;
+            transform: scale(1.05);
+            border-color: #9ca3af; /* neutral-400 */
+        }
+
+        /* Nav & Scroll Spy */
+        #navbar {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(3, 3, 3, 0.7);
+            border-bottom: 1px solid rgba(63, 63, 70, 0.5);
+        }
+        .nav-link-active {
+            color: #60a5fa !important; /* blue-400 */
+            font-weight: 500;
+        }
+        /* Mobile Menu styles */
+        #mobile-menu {
+            background: rgba(3, 3, 3, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        /* Architecture Diagram */
+        .arch-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 72rem; margin: 0 auto; }
+        .arch-level { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 0.5rem 0; }
+        .arch-block {
+            background: rgba(39,39,42,0.95); border: 2px solid rgba(71,71,71,1);
+            border-radius: 0.5rem; padding: 1rem; text-align: center; min-height: 80px;
+            cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.45); color: #e6e6e6;
+        }
+        .arch-block:hover { transform: scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+        .arch-block h4 { margin: 0 0 0.25rem 0; font-weight: 600; color: #fff; font-size: 1rem; }
+        .arch-block p { margin: 0; font-size: 0.75rem; color: rgba(203,213,225,0.9); }
+        .arch-encoder, .arch-decoder { width: 40%; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .arch-skip { width: 16%; border-bottom: 2px dashed rgba(107,114,128,0.6); align-self: stretch; }
+        .arch-bottleneck { width: 100%; }
+        .block-rstb { border-color: rgba(59,130,246,1); } .block-rstb h4 { color: rgba(147,197,253,1); }
+        .block-ffc { border-color: rgba(139,92,246,1); } .block-ffc h4 { color: rgba(196,181,253,1); }
+        .block-fam { border-color: rgba(245,158,11,1); } .block-fam h4 { color: rgba(251,191,36,1); }
+        .arch-arrow { width: 100%; display: flex; justify-content: center; margin: 0.5rem 0; }
+        .arch-arrow svg { width: 1.25rem; height: 1.25rem; stroke: rgba(148,163,184,0.95); }
+        @media (max-width: 768px) { 
+            .arch-level { flex-direction: column; gap: 1rem; } 
+            .arch-encoder, .arch-decoder, .arch-skip { width: 100%; }
+            .arch-skip { border-bottom: 0; border-left: 2px dashed rgba(107,114,128,0.6); height: 30px; width: 50%; margin: 0 auto; }
+        }
+
+        /* NEW: Image Comparison Slider */
+        .comparison-slider {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10; /* Maintain shape */
+            overflow: hidden;
+            border-radius: 0.75rem; /* 12px */
+            border: 1px solid rgba(63,63,70,0.9);
+            background: #000;
+        }
+        .comparison-slider img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Use contain to see full image */
+            pointer-events: none;
+        }
+        .comparison-slider .image-after {
+            position: absolute;
+            clip-path: inset(0 0 0 50%);
+        }
+        .comparison-slider .slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #fff;
+            left: 50%;
+            transform: translateX(-2px);
+            cursor: ew-resize;
+            z-index: 10;
+        }
+        .comparison-slider .slider-handle-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .slider-handle-button svg {
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-neutral-300">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-gradient-apple">AuraVision</a>
+            
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#showcase-container" class="nav-link text-neutral-400 hover:text-white transition-colors">Showcase</a>
+                <a href="#features" class="nav-link text-neutral-400 hover:text-white transition-colors">Features</a>
+                <a href="#problem" class="nav-link text-neutral-400 hover:text-white transition-colors">The Problem</a>
+                <a href="#architecture" class="nav-link text-neutral-400 hover:text-white transition-colors">Architecture</a>
+                <a href="https://github.com/shreyansh-basotia" target="_blank" class="text-neutral-400 hover:text-white transition-colors">GitHub</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-neutral-300">
+                    <svg id="menu-open-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg id="menu-close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (Fullscreen) -->
+    <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full z-40 flex-col items-center justify-center space-y-8 text-3xl font-light text-neutral-200 hidden">
+        <a href="#showcase-container" class="mobile-nav-link">Showcase</a>
+        <a href="#features" class="mobile-nav-link">Features</a>
+        <a href="#problem" class="mobile-nav-link">The Problem</a>
+        <a href="#architecture" class="mobile-nav-link">Architecture</a>
+        <a href="https://github.com/shreyansh-basotia" target="_blank" class="mobile-nav-link">GitHub</a>
+    </div>
+
+
+    <!-- Hero -->
+    <section id="hero-section" class="h-screen min-h-[600px] flex flex-col justify-center items-center text-center p-6 relative overflow-hidden">
+        <video id="hero-video" autoplay loop muted playsinline class="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-40">
+            <source src="https://assets-global.website-files.com/625fd4b2c180e03e766c075f/6446b5a32b6a031e33140510_header-video-2-transcode.mp4" type="video/mp4">
+        </video>
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/50 via-black/70 to-black z-10"></div>
+
+        <div class="max-w-4xl z-20 pt-20 reveal">
+            <h1 class="text-5xl md:text-7xl font-light text-gradient-white pb-4 tracking-tight">Redefining Clarity.</h1>
+            <p class="text-lg md:text-xl text-neutral-400 mt-6 max-w-2xl mx-auto leading-relaxed">
+                A deep learning framework combining Swin Transformers and Fourier Convolutions to restore document images with unprecedented fidelity.
+            </p>
+
+            <div class="mt-12">
+                <a href="#showcase-container" class="px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_35px_rgba(37,99,235,0.7)] transform hover:scale-105">
+                    View Project Showcase
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section id="showcase-container" class="bg-neutral-950 border-y border-neutral-800 py-24">
+        <div class="max-w-7xl mx-auto px-6 reveal">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-extralight text-gradient-apple mb-4">Model Results</h2>
+                <p class="text-lg text-neutral-400 max-w-2xl mx-auto">Select a sample to see the reconstruction. Drag the slider to compare.</p>
+            </div>
+
+            <!-- NEW: Image Comparison Slider -->
+            <div class="comparison-slider demo-panel rounded-2xl mb-12">
+                <img id="display-input" src="" alt="Degraded Input">
+                <img id="display-output" src="" alt="Restored Output" class="image-after">
+                <div class="slider-handle" id="slider-handle">
+                    <div class="slider-handle-button">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l-3 3 3 3M16 9l3 3-3 3"></path></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Thumbnails -->
+            <div class="flex flex-wrap justify-center gap-4" id="thumbnail-container">
+                <!-- JS will inject thumbnails here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: Key Features Section -->
+    <section id="features" class="py-24">
+        <div class="max-w-7xl mx-auto px-6 reveal">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-extralight text-gradient-apple mb-4">Core Features</h2>
+                <p class="text-lg text-neutral-400 max-w-2xl mx-auto">Why this model excels at document restoration.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-500/30 mb-5">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v11a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-white mb-3">High-Fidelity Text</h3>
+                    <p class="text-neutral-400">Recovers sharp, legible text by focusing on high-frequency details that define character edges, turning blur into clarity.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center border border-purple-500/30 mb-5">
+                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-white mb-3">Noise & Artifact Removal</h3>
+                    <p class="text-neutral-400">The Frequency Attention Module (FAM) intelligently identifies and suppresses noise patterns, cleaning the image without over-smoothing.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="feature-card rounded-2xl p-8">
+                    <div class="w-12 h-12 bg-amber-600/20 rounded-lg flex items-center justify-center border border-amber-500/30 mb-5">
+                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17.25l.03-.02a.75.75 0 001.06 0l.03.02m-1.12 0l.03-.02.03.02M9.75 17.25l.03.02a.75.75 0 01-1.06 0l.03-.02M9.75 17.25l-.03.02a.75.75 0 00-1.06 0l-.03-.02m1.12 0l-.03.02-.03-.02M19.5 12c0-5.23-4.27-9.5-9.5-9.5S.5 6.77.5 12s4.27 9.5 9.5 9.5 9.5-4.27 9.5-9.5z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-white mb-3">Global Consistency</h3>
+                    <p class="text-neutral-400">By using Fast Fourier Convolutions, the model understands the *entire* image at once, ensuring uniform lighting and preventing patchy results.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-6">
+        <!-- Problem Statement -->
+        <section id="problem" class="py-24 border-t border-neutral-800/50">
+            <div class="reveal max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-light text-white mb-8">The Challenge</h2>
+                <div class="text-lg text-neutral-400 leading-relaxed space-y-6">
+                    <p>Document images often suffer from severe degradation: <span class="text-neutral-200">blur, noise, shadows, and compression artifacts</span>. Traditional restoration methods struggle to recover fine text details while maintaining global structural consistency.</p>
+                    <p>This project introduces <strong class="text-white">AuraVision (FreqDocNet)</strong>, a novel architecture that processes image information in both spatial and frequency domains simultaneously, ensuring that high-frequency text edges are recovered sharply while background noise is effectively suppressed.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" class="py-24 border-t border-neutral-800/50">
+            <div class="reveal">
+                <h2 class="text-3xl md:text-5xl font-extralight text-gradient-apple mb-8 text-center">System Architecture</h2>
+                <p class="text-neutral-400 text-center mb-12 max-w-2xl mx-auto">An interactive diagram of the model's U-Net architecture. Click any component to view a detailed explanation.</p>
+
+                <div class="arch-container">
+                    <!-- Level 0 -->
+                    <div class="arch-block block-conv w-full" data-title="Shallow Feature Extraction" data-content="This first step acts like the model's 'eyes.' It uses a simple 3x3 convolution to scan the blurry input image and find basic information like raw edges, corners, and flat colors. It's not trying to understand what it sees, just mapping out the basic pieces it has to work with before the deep processing begins.">
+                        <h4>Shallow Feature Extraction</h4>
+                    </div>
+                    <div class="arch-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+
+                    <!-- Level 1 -->
+                    <div class="arch-level">
+                        <div class="arch-encoder">
+                            <div class="arch-block block-rstb" data-title="Encoder Stage (RSTB)" data-content="This is the 'understanding' phase. The RSTB (Residual Swin Transformer Block) is a local expert. It divides the image into small 'windows' and uses self-attention within those windows. This is like having the model read individual words and letters, allowing it to understand fine-grained details and textures, such as the specific curve of a character."><h4>Enc Stage (RSTB)</h4><p>256x256 (Local Detail)</p></div>
+                            <div class="arch-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+                            <div class="arch-block block-ffc" data-title="Encoder Stage (FFC)" data-content="The FFC (Fast Fourier Convolution) is a global strategist. It converts parts of the image into its frequencies (like an audio equalizer) to see the entire picture's properties at once. This allows it to understand global problems like overall blurriness, sensor noise, or repeating compression artifacts that a local-only model would miss."><h4>Enc Stage (FFC)</h4><p>Global Context</p></div>
+                        </div>
+                        <div class="arch-skip" data-title="Skip Connection" data-content="This is a vital 'information highway.' It sends the detailed feature map from this encoding stage directly across to the corresponding decoder stage. This ensures that as the model rebuilds the image, it doesn't forget the original, fine-grained details it saw at the beginning. This is the key to preventing a blurry or 'imagined' output."></div>
+                        <div class="arch-decoder">
+                            <div class="arch-block block-rstb" data-title="Decoder Stage (RSTB)" data-content="This is the 'rebuilding' phase. This block receives the upsampled, abstract features from the bottleneck. Its job is to refine them and, most importantly, merge them with the clean, detailed features sent across by the Skip Connection. It combines the 'what it is' (from below) with the 'where it was' (from the skip) to start reconstructing a sharp image."><h4>Dec Stage (RSTB)</h4><p>256x256 (Reconstruction)</p></div>
+                            <div class="arch-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+                            <div class="arch-block block-ffc" data-title="Decoder Stage (FFC)" data-content="Just like in the encoder, the FFC here ensures global consistency during reconstruction. As the details are being rebuilt, the FFC checks that the global properties of the image (like uniform lighting and consistent background) are maintained, preventing the model from creating new artifacts."><h4>Dec Stage (FFC)</h4><p>Global Refinement</p></div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+
+                    <!-- Bottleneck -->
+                    <div class="arch-block arch-bottleneck block-fam" data-title="Bottleneck (RSTB + FAM)" data-content="This is the deepest, most critical point. After all the 'understanding,' the data is compressed into a small, dense summary (the latent space). Here, the FAM (Frequency Attention Module) acts like a highly intelligent filter. It analyzes the frequency spectrum of this summary and decides, 'This high-frequency data looks like text, I'll amplify it. This other high-frequency data looks like noise, I'll suppress it.' It's the model's brain, separating the signal from the noise.">
+                        <h4>Bottleneck (RSTB + FAM)</h4>
+                        <p>Latent Space (e.g., 32x32)</p>
+                    </div>
+                    
+                    <div class="arch-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="rotate-180"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+                    
+                    <!-- Output Head -->
+                    <div class="arch-block block-conv w-full" data-title="Image Reconstruction Head" data-content="This is the final step. After the last decoder stage has rebuilt the full-size feature map, a final 3x3 convolution acts like a painter putting on the finishing touches. It assembles all the complex, multi-channel features back into a simple 3-channel (R, G, B) image. A residual connection (adding this output to the original input) is often used here to help the model focus only on learning what to fix.">
+                        <h4>Image Reconstruction Head</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-12 border-t border-neutral-800/50">
+            <div class="reveal">
+                <p class="text-neutral-500">&copy; 2025 AuraVision Project. A Showcase by Shreyansh Basotia.</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Architecture Info Modal -->
+    <div id="arch-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeArchModal()"></div>
+        <div class="modal-content relative w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+            <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                <h3 id="arch-modal-title" class="text-2xl font-semibold text-gradient-apple">Component</h3>
+            </div>
+            <div class="p-6 text-neutral-300 leading-relaxed overflow-y-auto max-h-[60vh]">
+                <p id="arch-modal-content"></p>
+            </div>
+            <div class="p-4 bg-black/20 border-t border-neutral-700 text-right">
+                <button onclick="closeArchModal()" class="px-5 py-2 text-sm font-medium text-neutral-200 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script>
+        // ==========================================
+        // 1. CONFIGURATION: ADD YOUR IMAGES HERE
+        // ==========================================
+        const showcaseData = [
+            {
+                id: 1,
+                thumb: '9705.png',
+                input: '9705.png',
+                output: '9705out.png'
+            },
+            {
+                id: 2,
+                thumb: 's2in.png',
+                input: 's2in.png',
+                output: 's2out.png'
+            },
+            {
+                id: 3,
+                thumb: 's3in.png',
+                input: 's3in.png',
+                output: 's3out.png'
+            },
+            {
+                id: 4,
+                thumb: 'https://placehold.co/150x150/444/fff?text=Sample+4',
+                input: 'https://placehold.co/800x600/333/666?text=Input+Image+4+(Noisy)',
+                output: 'https://placehold.co/800x600/102030/blue?text=Output+Image+4+(Clean)'
+            }
+        ];
+
+        // ==========================================
+        // 2. UI LOGIC
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Element Cache ---
+            const thumbContainer = document.getElementById('thumbnail-container');
+            const dispInput = document.getElementById('display-input');
+            const dispOutput = document.getElementById('display-output');
+            const archModal = document.getElementById('arch-modal');
+            const archModalTitle = document.getElementById('arch-modal-title');
+            const archModalContent = document.getElementById('arch-modal-content');
+            
+            // --- Showcase Logic ---
+            function renderThumbnails() {
+                if (!thumbContainer) return;
+                showcaseData.forEach((item, index) => {
+                    const img = document.createElement('img');
+                    img.src = item.thumb;
+                    img.alt = `Sample ${item.id}`;
+                    img.className = `thumb-item w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg cursor-pointer`;
+                    img.onclick = () => loadSample(index);
+                    img.dataset.index = index;
+                    thumbContainer.appendChild(img);
+                });
+            }
+
+            function loadSample(index) {
+                const data = showcaseData[index];
+                if (!data || !dispInput || !dispOutput) return;
+
+                // Fade out effect
+                dispInput.style.opacity = '0.5';
+                dispOutput.style.opacity = '0.5';
+
+                setTimeout(() => {
+                    dispInput.src = data.input;
+                    dispOutput.src = data.output;
+                    dispInput.style.opacity = '1';
+                    dispOutput.style.opacity = '1';
+                }, 200);
+
+                // Highlight active thumbnail
+                document.querySelectorAll('.thumb-item').forEach(el => {
+                    el.classList.toggle('thumb-active', parseInt(el.dataset.index) === index);
+                });
+            }
+
+            // --- Init Showcase ---
+            renderThumbnails();
+            loadSample(0); // Load first sample by default
+
+            // --- Architecture Modal Logic ---
+            window.openArchModal = (title, content) => {
+                if (!archModal || !archModalTitle || !archModalContent) return;
+                archModalTitle.innerText = title;
+                archModalContent.innerText = content;
+                archModal.classList.remove('hidden');
+            }
+            window.closeArchModal = () => {
+                if (!archModal) return;
+                archModal.classList.add('hidden');
+            }
+            // Add listeners to all blocks
+            document.querySelectorAll('.arch-block, .arch-skip').forEach(el => {
+                const title = el.dataset.title;
+                const content = el.dataset.content;
+                if (title && content) {
+                    el.addEventListener('click', () => openArchModal(title, content));
+                }
+            });
+
+            // --- NEW: Image Comparison Slider Logic ---
+            const slider = document.querySelector('.comparison-slider');
+            const handle = document.getElementById('slider-handle');
+            const afterImage = document.querySelector('.image-after');
+            let isDragging = false;
+
+            const onDragStart = (e) => {
+                isDragging = true;
+                slider.classList.add('dragging');
+                e.preventDefault(); // Prevent text selection
+            };
+            const onDragEnd = () => {
+                isDragging = false;
+                slider.classList.remove('dragging');
+            };
+            const onDragMove = (e) => {
+                if (!isDragging) return;
+                
+                // Get position relative to slider
+                const rect = slider.getBoundingClientRect();
+                let x = (e.clientX || e.touches[0].clientX) - rect.left;
+                
+                // Clamp position
+                x = Math.max(0, Math.min(x, rect.width));
+                
+                const percent = (x / rect.width) * 100;
+                
+                handle.style.left = `${percent}%`;
+                afterImage.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            };
+            
+            if (slider && handle && afterImage) {
+                // Mouse events
+                handle.addEventListener('mousedown', onDragStart);
+                document.addEventListener('mouseup', onDragEnd);
+                document.addEventListener('mousemove', onDragMove);
+                // Touch events
+                handle.addEventListener('touchstart', onDragStart, { passive: false });
+                document.addEventListener('touchend', onDragEnd);
+                document.addEventListener('touchmove', onDragMove, { passive: false });
+            }
+
+            // --- NEW: Mobile Menu Logic ---
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const openIcon = document.getElementById('menu-open-icon');
+            const closeIcon = document.getElementById('menu-close-icon');
+
+            const toggleMenu = () => {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('flex');
+                openIcon.classList.toggle('hidden', isHidden);
+                closeIcon.classList.toggle('hidden', !isHidden);
+                document.body.style.overflow = isHidden ? 'hidden' : '';
+            };
+            menuButton.addEventListener('click', toggleMenu);
+            // Close menu when a link is clicked
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', toggleMenu);
+            });
+
+            // --- NEW: Scroll Spy Logic ---
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-50% 0px -50% 0px', // Triggers in the middle of the viewport
+                threshold: 0
+            };
+
+            const scrollSpyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.toggle('nav-link-active', link.getAttribute('href') === `#${id}`);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => scrollSpyObserver.observe(section));
+
+            // --- Reveal on Scroll Logic ---
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        // Optional: unobserve after reveal
+                        // revealObserver.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+        });
+    </script>
+</body>
+</html>
